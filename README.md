@@ -15,7 +15,7 @@
 
 ## 🚀 Overview
 
-**Guild Manager** is a sophisticated CLI tool designed to help you regain control over your Discord server list. It leverages **OpenRouter AI** to analyze your guilds and suggest a perfectly categorized folder structure, then applies it directly to your account with surgical precision.
+**Guild Organizer** is a sophisticated CLI tool designed to help you regain control over your Discord server list. It leverages **OpenRouter AI** to analyze your guilds and suggest a perfectly categorized folder structure, then applies it directly to your account with surgical precision.
 
 ### 🌟 Key Features
 
