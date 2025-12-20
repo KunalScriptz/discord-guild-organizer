@@ -1,6 +1,6 @@
 <div align="center">
   <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Gear.png" alt="Gear" width="120" height="120" />
-  <h1>✨ Guild Manager ✨</h1>
+  <h1>✨ Guild Organizer ✨</h1>
   <p><strong>Intelligent Discord Organization Powered by AI</strong></p>
 
   <p>
