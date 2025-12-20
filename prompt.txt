@@ -1,0 +1,6 @@
+I have a list of Discord servers. I want to organize them into meaningful folders.
+Please categorize the following servers into a logical folder structure.
+Return a JSON object where keys are folder names and values are arrays of server NAMES.
+Only include servers that are in the list.
+Group them by topic automatically.
+Return ONLY valid JSON.
