@@ -7,7 +7,7 @@
     <img src="https://img.shields.io/badge/Bun-v1.2.23-000000?style=for-the-badge&logo=bun&logoColor=white" alt="Bun Version" />
     <img src="https://img.shields.io/badge/TypeScript-v5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
     <img src="https://img.shields.io/badge/Discord.js--Selfbot-v13-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord.js" />
-    <img src="https://img.shields.io/badge/OpenRouter-AI-orange?style=for-the-badge" alt="OpenRouter" />
+    <img src="https://img.shields.io/badge/DeepSeek-AI-orange?style=for-the-badge" alt="DeepSeek" />
   </p>
 </div>
 
@@ -15,7 +15,7 @@
 
 ## 🚀 Overview
 
-**Guild Organizer** is a sophisticated CLI tool designed to help you regain control over your Discord server list. It leverages **OpenRouter AI** to analyze your guilds and suggest a perfectly categorized folder structure, then applies it directly to your account with surgical precision.
+**Guild Organizer** is a sophisticated CLI tool designed to help you regain control over your Discord server list. It leverages **DeepSeek AI** to analyze your guilds and suggest a perfectly categorized folder structure, then applies it directly to your account with surgical precision.
 
 ### 🌟 Key Features
 
@@ -31,7 +31,8 @@
 
 - **Runtime**: [Bun](https://bun.sh)
 - **Library**: [discord.js-selfbot-v13](https://github.com/aiko-chan-ai/discord.js-selfbot-v13)
-- **AI Backend**: [OpenRouter API](https://openrouter.ai)
+- **AI Proxy**: [LiteLLM](https://github.com/BerriAI/litellm)
+- **AI Backend**: [DeepSeek API](https://platform.deepseek.com)
 - **Languages**: TypeScript, JavaScript
 
 ---
@@ -39,19 +40,27 @@
 ## ⚙️ Setup & Installation
 
 ### 1. Prerequisites
-Ensure you have [Bun](https://bun.sh) installed on your system.
+Ensure you have [Bun](https://bun.sh) and Python 3 installed on your system.
 
 ### 2. Clone & Install
 ```bash
 bun install
+pip install litellm
 ```
 
-### 3. Environment Configuration
+### 3. Start LiteLLM Proxy
+The tool communicates with DeepSeek through a local LiteLLM proxy. Start it in a separate terminal:
+
+```bash
+bun run proxy
+```
+
+### 4. Environment Configuration
 Create a `.env` file in the root directory and add your credentials:
 
 ```dotenv
 DISCORD_TOKEN="your_self_token"
-OPENROUTER_API_KEY="sk-or-v1-..."
+DEEPSEEK_API_KEY="sk-..."
 APPLY=false
 ```
 
@@ -64,6 +73,8 @@ APPLY=false
 
 ### 📂 Organize Guilds
 Analyze and organize your servers into AI-suggested folders.
+
+> Make sure the LiteLLM proxy is running (`bun run proxy` in another terminal).
 
 **Dry Run (Preview):**
 ```bash
@@ -103,8 +114,8 @@ You can fine-tune how the AI categorizes your servers by editing the `prompt.txt
 ## 🧠 How It Works
 
 1. **Fetch**: The tool connects to your Discord account and retrieves a list of all joined guilds.
-2. **Analyze**: Guild names are sent to **OpenRouter AI** (Gemini/GPT models) to identify logical groupings (e.g., Gaming, Dev, Community, Crypto).
-3. **Draft**: A folder structure is generated with specific guild mappings.
+2. **Analyze**: Guild names are sent to **DeepSeek AI** (via LiteLLM proxy) to identify logical groupings (e.g., Gaming, Dev, Community, Crypto).
+3. **Draft**: A folder structure is generated with specific guild mappings and Discord-compatible colors.
 4. **Sync**: If `APPLY` is set to `true`, the `client.settings.edit` method is called to synchronize the new structure to your Discord profile.
 
 ---

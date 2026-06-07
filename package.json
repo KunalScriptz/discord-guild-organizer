@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "start": "bun src/index.ts",
-    "reset": "bun src/reset.ts"
+    "reset": "bun src/reset.ts",
+    "proxy": "/home/ghostops/.local/venvs/litellm/bin/python litellm_proxy.py",
+    "organize": "/home/ghostops/.local/venvs/litellm/bin/python litellm_proxy.py & sleep 3 && bun run start; kill %1 2>/dev/null"
   },
   "devDependencies": {
     "@types/bun": "latest"

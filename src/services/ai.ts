@@ -1,13 +1,13 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { logger } from '../utils/logger';
-import { OPENROUTER_API_URL, OPENROUTER_MODEL, APP_REFERER, APP_TITLE } from '../utils/constants';
+import { LITELLM_API_URL, LITELLM_MODEL } from '../utils/constants';
 
 export async function categorizeGuilds(guilds: { id: string; name: string }[]) {
-    const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+    const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 
-    if (!OPENROUTER_API_KEY) {
-        logger.error('Missing OPENROUTER_API_KEY in .env file');
+    if (!DEEPSEEK_API_KEY) {
+        logger.error('Missing DEEPSEEK_API_KEY in .env file');
         return {};
     }
 
@@ -15,20 +15,19 @@ export async function categorizeGuilds(guilds: { id: string; name: string }[]) {
         const promptBase = await fs.readFile(path.join(process.cwd(), 'prompt.txt'), 'utf-8');
         const prompt = `${promptBase}\n\nServers:\n${guilds.map((g) => g.name).join('\n')}`;
 
-        const response = await fetch(OPENROUTER_API_URL, {
+        const response = await fetch(LITELLM_API_URL, {
             method: 'POST',
             headers: {
-                Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-                'HTTP-Referer': APP_REFERER,
-                'X-Title': APP_TITLE,
+                Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: OPENROUTER_MODEL,
+                model: LITELLM_MODEL,
+                max_tokens: 4096,
                 messages: [
                     {
                         role: 'system',
-                        content: 'You are a Discord organization assistant. You categorize servers into folders. Return ONLY valid JSON.',
+                        content: 'You are a Discord organization assistant. You categorize servers into folders. Return ONLY valid JSON. Include EVERY server from the list — do not skip or omit any.',
                     },
                     {
                         role: 'user',
@@ -41,20 +40,20 @@ export async function categorizeGuilds(guilds: { id: string; name: string }[]) {
 
         if (!response.ok) {
             const errorText = await response.text();
-            logger.error(`OpenRouter API Error (${response.status}):`, errorText);
+            logger.error(`LiteLLM/DeepSeek API Error (${response.status}):`, errorText);
             return {};
         }
 
         const data = await response.json() as any;
 
         if (data.error) {
-            logger.error('OpenRouter API Error Data:', data.error);
+            logger.error('API Error Data:', data.error);
             return {};
         }
 
         const content = data.choices?.[0]?.message?.content;
         if (!content) {
-            logger.warn('OpenRouter returned no content.');
+            logger.warn('DeepSeek returned no content.');
             return {};
         }
 

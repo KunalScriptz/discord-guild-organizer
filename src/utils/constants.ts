@@ -1,7 +1,5 @@
-export const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-export const OPENROUTER_MODEL = 'openai/gpt-4o-mini';
-export const APP_REFERER = 'https://github.com/ee3lol/guild-manager';
-export const APP_TITLE = 'Discord Guild Manager';
+export const LITELLM_API_URL = 'http://localhost:4000/v1/chat/completions';
+export const LITELLM_MODEL = 'deepseek-chat';
 
 export const FOLDER_BASE_ID = 100;
 
