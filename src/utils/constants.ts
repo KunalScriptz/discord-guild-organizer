@@ -1,5 +1,5 @@
 export const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-export const OPENROUTER_MODEL = 'google/gemini-2.5-pro';
+export const OPENROUTER_MODEL = 'openai/gpt-4o-mini';
 export const APP_REFERER = 'https://github.com/ee3lol/guild-manager';
 export const APP_TITLE = 'Discord Guild Manager';
 

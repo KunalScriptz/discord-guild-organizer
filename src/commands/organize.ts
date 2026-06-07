@@ -37,13 +37,23 @@ export async function runOrganize(client: Client) {
         logger.header('Suggested Folder Structure');
 
         const folders = Object.entries(categories).map(([folderName, serverNames], index) => {
-            // Handle nested JSON: if value is an object (not array), treat its keys as sub-folders
+            // Normalize the AI response into a string array of server names
+            // AI can return: array, {servers: [], color: "..."}, or nested {subfolder: [...]}
             let names: string[];
+            let aiColor: string | undefined;
+
             if (Array.isArray(serverNames)) {
                 names = serverNames.map((s: any) => typeof s === 'string' ? s : (s?.name || s?.server || String(s)));
             } else if (typeof serverNames === 'object' && serverNames !== null) {
-                // Flatten nested object: treat keys as server names
-                names = Object.keys(serverNames);
+                const obj = serverNames as Record<string, any>;
+                // Format: {"servers": [...], "color": "Blue"}
+                if (Array.isArray(obj.servers)) {
+                    names = obj.servers.map((s: any) => typeof s === 'string' ? s : (s?.name || s?.server || String(s)));
+                    aiColor = obj.color;
+                } else {
+                    // Flatten nested object: treat keys as server names
+                    names = Object.keys(obj);
+                }
             } else {
                 names = [];
             }
@@ -52,9 +62,11 @@ export async function runOrganize(client: Client) {
                 .map((name) => guilds.find((g) => g.name === name)?.id)
                 .filter((id): id is string => !!id);
 
-            // Assign color: cycle through colors with offset to avoid adjacent duplicates
-            const colorName = COLOR_NAMES[(index * 3) % COLOR_NAMES.length];
-            const color = FOLDER_COLORS[colorName];
+            // Use AI-suggested color if provided and valid, otherwise cycle
+            const colorName = (aiColor && FOLDER_COLORS[aiColor])
+                ? aiColor
+                : COLOR_NAMES[(index * 3) % COLOR_NAMES.length];
+            const color = FOLDER_COLORS[colorName] || FOLDER_COLORS[COLOR_NAMES[index % COLOR_NAMES.length]];
 
             logger.folder(folderName);
             names.forEach(name => {
