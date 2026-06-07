@@ -60,7 +60,16 @@ export async function categorizeGuilds(guilds: { id: string; name: string }[]) {
 
         const jsonStr = content.replace(/```json/g, '').replace(/```/g, '').trim();
         const cleanedJson = jsonStr.replace(/,(\s*[\]}])/g, '$1');
-        return JSON.parse(cleanedJson);
+        const parsed = JSON.parse(cleanedJson);
+
+        // Handle when AI wraps everything in a "folders" or "categories" parent key
+        if (typeof parsed === 'object' && parsed !== null) {
+            const keys = Object.keys(parsed);
+            if (keys.length === 1 && typeof parsed[keys[0]] === 'object' && !Array.isArray(parsed[keys[0]])) {
+                return parsed[keys[0]];
+            }
+        }
+        return parsed;
     } catch (error) {
         logger.error('Fetch/FS error in AI service:', error);
         return {};

@@ -1,7 +1,9 @@
+import fs from 'fs/promises';
+import path from 'path';
 import { Client } from 'discord.js-selfbot-v13';
 import { logger } from '../utils/logger';
 import { categorizeGuilds } from '../services/ai';
-import { FOLDER_BASE_ID } from '../utils/constants';
+import { FOLDER_BASE_ID, FOLDER_COLORS, COLOR_NAMES } from '../utils/constants';
 
 export async function runOrganize(client: Client) {
     logger.success(`Logged in as ${logger.bold(logger.cyan(client.user?.tag || 'Unknown'))}!`);
@@ -12,6 +14,11 @@ export async function runOrganize(client: Client) {
     }));
 
     logger.info(`Fetched ${logger.bold(guilds.length)} guilds.`);
+
+    // Save guilds to file
+    const guildsPath = path.join(process.cwd(), 'guilds.json');
+    await fs.writeFile(guildsPath, JSON.stringify(guilds, null, 2), 'utf-8');
+    logger.dim(`Saved guilds list to guilds.json`);
 
     if (guilds.length === 0) {
         logger.warn('No guilds found.');
@@ -30,12 +37,27 @@ export async function runOrganize(client: Client) {
         logger.header('Suggested Folder Structure');
 
         const folders = Object.entries(categories).map(([folderName, serverNames], index) => {
-            const guild_ids = (serverNames as string[])
+            // Handle nested JSON: if value is an object (not array), treat its keys as sub-folders
+            let names: string[];
+            if (Array.isArray(serverNames)) {
+                names = serverNames.map((s: any) => typeof s === 'string' ? s : (s?.name || s?.server || String(s)));
+            } else if (typeof serverNames === 'object' && serverNames !== null) {
+                // Flatten nested object: treat keys as server names
+                names = Object.keys(serverNames);
+            } else {
+                names = [];
+            }
+
+            const guild_ids = names
                 .map((name) => guilds.find((g) => g.name === name)?.id)
                 .filter((id): id is string => !!id);
 
+            // Assign color: cycle through colors with offset to avoid adjacent duplicates
+            const colorName = COLOR_NAMES[(index * 3) % COLOR_NAMES.length];
+            const color = FOLDER_COLORS[colorName];
+
             logger.folder(folderName);
-            (serverNames as string[]).forEach(name => {
+            names.forEach(name => {
                 const found = guilds.some(g => g.name === name);
                 logger.guild(name, found);
             });
@@ -44,9 +66,16 @@ export async function runOrganize(client: Client) {
                 name: folderName,
                 guild_ids,
                 id: (index + FOLDER_BASE_ID).toString(),
-                color: 0,
+                color,
             };
         });
+
+        // Safety check: if most servers weren't found in guild list, AI response is likely broken
+        const totalMapped = folders.reduce((sum, f) => sum + f.guild_ids.length, 0);
+        if (totalMapped < guilds.length * 0.3) {
+            logger.error(`Only ${totalMapped}/${guilds.length} guilds mapped — AI response looks broken. Aborting to prevent bad folder structure.`);
+            return;
+        }
 
         console.log('');
 
