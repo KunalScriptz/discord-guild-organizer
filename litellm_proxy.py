@@ -27,11 +27,11 @@ class Handler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", 0))
         body = json.loads(self.rfile.read(length))
 
-        # Extract the API key from auth header and pass to litellm
+        # Extract API key from auth header and inject into env for litellm
         auth = self.headers.get("Authorization", "")
-        api_key = auth.replace("Bearer ", "") if auth.startswith("Bearer ") else None
+        api_key = auth.replace("Bearer ", "") if auth.startswith("Bearer ") else os.environ.get("DEEPSEEK_API_KEY")
         if api_key:
-            litellm.api_key = api_key
+            os.environ["DEEPSEEK_API_KEY"] = api_key
 
         try:
             response = litellm.completion(
